@@ -12,3 +12,5 @@ test:
 
 testclean:
 	go clean -testcache
+
+dryrun: migratedown migrateup testclean test

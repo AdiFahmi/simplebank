@@ -32,6 +32,13 @@ func getSingleAccount(accID int64) (Account, error) {
 	return acc, err
 }
 
+func createAndGetAccount() (Account, error) {
+	arg := randomParams()
+	res, _ := createRandomAccount(arg)
+	accID, _ := getIdFromResult(res)
+	return getSingleAccount(accID)
+}
+
 func TestCreateAccount(t *testing.T) {
 	arg := randomParams()
 
@@ -42,7 +49,6 @@ func TestCreateAccount(t *testing.T) {
 
 func TestGetAccount(t *testing.T) {
 	arg := randomParams()
-
 	res, _ := createRandomAccount(arg)
 	accID, _ := getIdFromResult(res)
 	acc, err := getSingleAccount(accID)

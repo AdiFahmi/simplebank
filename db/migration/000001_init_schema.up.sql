@@ -10,15 +10,15 @@ CREATE TABLE `accounts` (
 
 CREATE TABLE `entries` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `account_id` bigint,
+  `account_id` bigint NOT NULL,
   `ammount` bigint NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `transfers` (
   `id` bigint PRIMARY KEY AUTO_INCREMENT,
-  `from_account_id` bigint,
-  `to_account_id` bigint,
+  `from_account_id` bigint NOT NULL,
+  `to_account_id` bigint NOT NULL,
   `ammount` bigint NOT NULL,
   `created_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
