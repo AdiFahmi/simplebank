@@ -58,6 +58,25 @@ func (q *Queries) GetAccount(ctx context.Context, id int64) (Account, error) {
 	return i, err
 }
 
+const getAccountForUpdate = `-- name: GetAccountForUpdate :one
+SELECT id, owner, balance, currency, created_at FROM accounts
+WHERE id = ? LIMIT 1
+FOR UPDATE
+`
+
+func (q *Queries) GetAccountForUpdate(ctx context.Context, id int64) (Account, error) {
+	row := q.db.QueryRowContext(ctx, getAccountForUpdate, id)
+	var i Account
+	err := row.Scan(
+		&i.ID,
+		&i.Owner,
+		&i.Balance,
+		&i.Currency,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const listAccounts = `-- name: ListAccounts :many
 SELECT id, owner, balance, currency, created_at FROM accounts
 ORDER BY id
@@ -112,5 +131,21 @@ type UpdateAccountParams struct {
 
 func (q *Queries) UpdateAccount(ctx context.Context, arg UpdateAccountParams) error {
 	_, err := q.db.ExecContext(ctx, updateAccount, arg.Balance, arg.ID)
+	return err
+}
+
+const updateAccountBalance = `-- name: UpdateAccountBalance :exec
+UPDATE accounts
+SET balance = balance + ?
+WHERE id = ?
+`
+
+type UpdateAccountBalanceParams struct {
+	Ammount int64 `json:"ammount"`
+	ID      int64 `json:"id"`
+}
+
+func (q *Queries) UpdateAccountBalance(ctx context.Context, arg UpdateAccountBalanceParams) error {
+	_, err := q.db.ExecContext(ctx, updateAccountBalance, arg.Ammount, arg.ID)
 	return err
 }

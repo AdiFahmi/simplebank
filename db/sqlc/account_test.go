@@ -22,11 +22,6 @@ func createRandomAccount(arg CreateAccountParams) (sql.Result, error) {
 	return res, err
 }
 
-func getIdFromResult(res sql.Result) (int64, error) {
-	lastId, err := res.LastInsertId()
-	return lastId, err
-}
-
 func getSingleAccount(accID int64) (Account, error) {
 	acc, err := testQueries.GetAccount(context.Background(), accID)
 	return acc, err
@@ -35,7 +30,7 @@ func getSingleAccount(accID int64) (Account, error) {
 func createAndGetAccount() (Account, error) {
 	arg := randomParams()
 	res, _ := createRandomAccount(arg)
-	accID, _ := getIdFromResult(res)
+	accID, _ := res.LastInsertId()
 	return getSingleAccount(accID)
 }
 
@@ -50,7 +45,7 @@ func TestCreateAccount(t *testing.T) {
 func TestGetAccount(t *testing.T) {
 	arg := randomParams()
 	res, _ := createRandomAccount(arg)
-	accID, _ := getIdFromResult(res)
+	accID, _ := res.LastInsertId()
 	acc, err := getSingleAccount(accID)
 	require.NoError(t, err)
 	require.NotEmpty(t, acc)
@@ -63,7 +58,7 @@ func TestGetAccount(t *testing.T) {
 func TestUpdateAccount(t *testing.T) {
 	arg := randomParams()
 	res, _ := createRandomAccount(arg)
-	accID, _ := getIdFromResult(res)
+	accID, _ := res.LastInsertId()
 
 	updateArg := UpdateAccountParams{
 		ID:      accID,
@@ -82,7 +77,7 @@ func TestUpdateAccount(t *testing.T) {
 func TestDeleteAccount(t *testing.T) {
 	arg := randomParams()
 	res, _ := createRandomAccount(arg)
-	accID, _ := getIdFromResult(res)
+	accID, _ := res.LastInsertId()
 
 	err := testQueries.DeleteAccount(context.Background(), accID)
 	require.NoError(t, err)
@@ -111,4 +106,42 @@ func TestListAccounts(t *testing.T) {
 		require.NotEmpty(t, account)
 		t.Log("Acc owner:", account.Owner)
 	}
+}
+
+func TestAddAccountBalance(t *testing.T) {
+	account, _ := createAndGetAccount()
+	t.Log("Init balance:", account.Balance)
+	addAmmount := util.RandomMoney()
+	t.Log("added Ammount:", addAmmount)
+
+	err := testQueries.UpdateAccountBalance(context.Background(), UpdateAccountBalanceParams{
+		ID:      account.ID,
+		Ammount: addAmmount,
+	})
+	require.NoError(t, err)
+
+	updatedAcc, err := getSingleAccount(account.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedAcc)
+	t.Log("Updated balance:", updatedAcc.Balance)
+	require.Equal(t, account.Balance+addAmmount, updatedAcc.Balance)
+}
+
+func TestDeductAccountBalance(t *testing.T) {
+	account, _ := createAndGetAccount()
+	t.Log("Init balance:", account.Balance)
+	deductAmmount := util.RandomMoney()
+	t.Log("deduct Ammount:", deductAmmount)
+
+	err := testQueries.UpdateAccountBalance(context.Background(), UpdateAccountBalanceParams{
+		ID:      account.ID,
+		Ammount: -deductAmmount,
+	})
+	require.NoError(t, err)
+
+	updatedAcc, err := getSingleAccount(account.ID)
+	require.NoError(t, err)
+	require.NotEmpty(t, updatedAcc)
+	t.Log("Updated balance:", updatedAcc.Balance)
+	require.Equal(t, account.Balance-deductAmmount, updatedAcc.Balance)
 }

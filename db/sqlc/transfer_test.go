@@ -38,7 +38,7 @@ func TestGetTransfer(t *testing.T) {
 		Ammount:       util.RandomMoney(),
 	}
 	result, _ := createRandomTransfer(arg)
-	transferID, _ := getIdFromResult(result)
+	transferID, _ := result.LastInsertId()
 
 	transfer, err := testQueries.GetTransfer(context.Background(), transferID)
 	require.NoError(t, err)

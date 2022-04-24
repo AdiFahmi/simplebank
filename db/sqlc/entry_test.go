@@ -38,7 +38,7 @@ func TestGetEntry(t *testing.T) {
 		Ammount:   util.RandomMoney(),
 	}
 	res, _ := createRandomEntry(arg)
-	entryID, _ := getIdFromResult(res)
+	entryID, _ := res.LastInsertId()
 	entry, err := getSingleEntry(entryID)
 	require.NoError(t, err)
 	require.NotEmpty(t, entry)
