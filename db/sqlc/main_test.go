@@ -2,6 +2,7 @@ package db
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 	"os"
 	"testing"
@@ -22,6 +23,20 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal("Cannot connect to DB", err)
 	}
+
+	var version, isoLevel string
+
+	err = conn.QueryRow("SELECT VERSION()").Scan(&version)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = conn.QueryRow("SELECT @@transaction_isolation;").Scan(&isoLevel)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(version, isoLevel)
 
 	testDB = conn
 	testQueries = New(conn)

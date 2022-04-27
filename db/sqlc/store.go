@@ -6,16 +6,6 @@ import (
 	"fmt"
 )
 
-type TransferTxResult struct {
-	Transfer    Transfer `json:"transfer"`
-	FromAccount Account  `json:"from_account"`
-	ToAccount   Account  `json:"to_account"`
-	FromEntry   Entry    `json:"from_entry"`
-	ToEntry     Entry    `json:"to_entry"`
-}
-
-var txKey = struct{}{}
-
 type Store interface {
 	Querier
 	TransferTx(ctx context.Context, arg CreateTransferParams) (TransferTxResult, error)
@@ -25,6 +15,16 @@ type SqlStore struct {
 	db *sql.DB
 	*Queries
 }
+
+type TransferTxResult struct {
+	Transfer    Transfer `json:"transfer"`
+	FromAccount Account  `json:"from_account"`
+	ToAccount   Account  `json:"to_account"`
+	FromEntry   Entry    `json:"from_entry"`
+	ToEntry     Entry    `json:"to_entry"`
+}
+
+var txKey = struct{}{}
 
 func NewStore(db *sql.DB) Store {
 	return &SqlStore{
@@ -114,37 +114,53 @@ func (store *SqlStore) TransferTx(ctx context.Context, arg CreateTransferParams)
 			return err
 		}
 
-		// Update account balance
-		// Deduct from account1
-		fmt.Println(txName, "update account1 balance")
-		err = q.UpdateAccountBalance(context.Background(), UpdateAccountBalanceParams{
-			ID:      arg.FromAccountID,
-			Ammount: -arg.Ammount,
-		})
-		if err != nil {
-			return err
-		}
-		result.FromAccount, err = q.GetAccount(context.Background(), arg.FromAccountID)
-		if err != nil {
-			return err
+		// Actual transfer here
+		if arg.FromAccountID < arg.ToAccountID {
+			// deduct first then add
+			result.FromAccount, result.ToAccount, err = updateBothBalance(ctx, q, arg.FromAccountID, -arg.Ammount, arg.ToAccountID, arg.Ammount)
+		} else {
+			// add first then deduct
+			result.ToAccount, result.FromAccount, err = updateBothBalance(ctx, q, arg.ToAccountID, arg.Ammount, arg.FromAccountID, -arg.Ammount)
 		}
 
-		// Add to account2
-		fmt.Println(txName, "update account2 balance")
-		err = q.UpdateAccountBalance(context.Background(), UpdateAccountBalanceParams{
-			ID:      arg.ToAccountID,
-			Ammount: arg.Ammount,
-		})
-		if err != nil {
-			return err
-		}
-		result.ToAccount, err = q.GetAccount(context.Background(), arg.ToAccountID)
-		if err != nil {
-			return err
-		}
-
-		return nil
+		return err
 	})
 
 	return result, err
+}
+
+// updateBothBalance updates both accounts balance (sender and receiver)
+// sender could be account1 or account2 and vice versa
+func updateBothBalance(
+	ctx context.Context,
+	q *Queries,
+	accountID1 int64,
+	ammount1 int64,
+	accountID2 int64,
+	ammount2 int64,
+) (account1 Account, account2 Account, err error) {
+	err = q.UpdateAccountBalance(context.Background(), UpdateAccountBalanceParams{
+		ID:      accountID1,
+		Ammount: ammount1,
+	})
+	if err != nil {
+		return
+	}
+	account1, err = q.GetAccount(context.Background(), accountID1)
+	if err != nil {
+		return
+	}
+
+	err = q.UpdateAccountBalance(context.Background(), UpdateAccountBalanceParams{
+		ID:      accountID2,
+		Ammount: ammount2,
+	})
+	if err != nil {
+		return
+	}
+	account2, err = q.GetAccount(context.Background(), accountID2)
+	if err != nil {
+		return
+	}
+	return
 }

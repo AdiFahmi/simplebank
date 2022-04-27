@@ -13,4 +13,9 @@ test:
 testclean:
 	go clean -testcache
 
+server:
+	go run main.go
+
 dryrun: migratedown migrateup testclean test
+
+.PHONY: migrateup migratedown sqlc test testclean server drynrun

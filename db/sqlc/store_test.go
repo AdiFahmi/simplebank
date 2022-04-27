@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"testing"
 
-	multierror "github.com/hashicorp/go-multierror"
 	"github.com/stretchr/testify/require"
 )
 
@@ -16,7 +15,7 @@ func TestTransferTx(t *testing.T) {
 	account2, _ := createAndGetAccount()
 	t.Log("Init balance", account1.Balance, account2.Balance)
 
-	totalLoop := 2
+	totalLoop := 1
 	ammount := int64(10)
 
 	errs := make(chan error)
@@ -37,8 +36,6 @@ func TestTransferTx(t *testing.T) {
 		}()
 	}
 
-	var mErrors error
-
 	// check error and result
 	for i := 0; i < totalLoop; i++ {
 		err := <-errs
@@ -57,7 +54,6 @@ func TestTransferTx(t *testing.T) {
 
 		_, err = store.GetTransfer(context.Background(), transfer.ID)
 		require.NoError(t, err)
-		mErrors = multierror.Append(mErrors, err)
 
 		// check entries
 		fromEntry := result.FromEntry
@@ -68,7 +64,6 @@ func TestTransferTx(t *testing.T) {
 
 		_, err = store.GetEntry(context.Background(), fromEntry.ID)
 		require.NoError(t, err)
-		mErrors = multierror.Append(mErrors, err)
 
 		toEntry := result.ToEntry
 		require.NotEmpty(t, toEntry)
@@ -77,8 +72,7 @@ func TestTransferTx(t *testing.T) {
 		require.NotZero(t, toEntry.ID)
 
 		_, err = store.GetEntry(context.Background(), toEntry.ID)
-		// require.NoError(t, err)
-		mErrors = multierror.Append(mErrors, err)
+		require.NoError(t, err)
 
 		fromAccount := result.FromAccount
 		require.NotEmpty(t, fromAccount)
@@ -99,8 +93,6 @@ func TestTransferTx(t *testing.T) {
 		k := int(diff1 / ammount)
 		require.True(t, k >= 1 && k <= totalLoop)
 	}
-
-	t.Log("mErrors", mErrors)
 
 	// check final balance
 	updatedAccount1, _ := store.GetAccount(context.Background(), account1.ID)
