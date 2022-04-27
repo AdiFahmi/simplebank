@@ -7,19 +7,19 @@ import (
 	"os"
 	"testing"
 
+	"github.com/adifahmi/simplebank/util"
 	_ "github.com/go-sql-driver/mysql"
-)
-
-const (
-	dbDriver = "mysql"
-	dbSource = "app:app@tcp(127.0.0.1:3390)/app?timeout=2s&parseTime=true"
 )
 
 var testQueries *Queries
 var testDB *sql.DB
 
 func TestMain(m *testing.M) {
-	conn, err := sql.Open(dbDriver, dbSource)
+	config, err := util.LoadConfig("../..")
+	if err != nil {
+		log.Fatal("cannot load config", err)
+	}
+	conn, err := sql.Open(config.DBDriver, config.DBSource)
 	if err != nil {
 		log.Fatal("Cannot connect to DB", err)
 	}
