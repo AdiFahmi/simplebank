@@ -16,6 +16,9 @@ testclean:
 server:
 	go run main.go
 
+autoreload:
+	gin --appPort 8088 --all -i main.go
+
 dryrun: migratedown migrateup testclean test
 
 .PHONY: migrateup migratedown sqlc test testclean server drynrun
