@@ -10,6 +10,9 @@ sqlc:
 test:
 	go test -v -cover ./...
 
+singletest:
+	go test -run TestGetAccountAPI -v
+
 testclean:
 	go clean -testcache
 
@@ -21,4 +24,7 @@ autoreload:
 
 dryrun: migratedown migrateup testclean test
 
-.PHONY: migrateup migratedown sqlc test testclean server drynrun
+mock:
+	mockgen -package mockdb -destination db/mock/store.go github.com/adifahmi/simplebank/db/sqlc Store
+
+.PHONY: migrateup migratedown sqlc test testclean server drynrun mock
