@@ -25,4 +25,4 @@ go.work
 
 # Go binary
 gin-bin
-**/*.go
+# **/*.go
