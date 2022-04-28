@@ -35,6 +35,10 @@ func RandomMoney() int64 {
 }
 
 func RandomCurrency() string {
-	currencies := []string{"EUR", "USD", "IDR"}
+	mapCurr := supportedCurrency
+	currencies := make([]string, len(mapCurr))
+	for k := range mapCurr {
+		currencies = append(currencies, k)
+	}
 	return currencies[rand.Intn(len(currencies))]
 }
