@@ -9,9 +9,9 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func randomParams() CreateAccountParams {
+func randomAccountParams(user User) CreateAccountParams {
 	return CreateAccountParams{
-		Owner:    util.RandomOwner(),
+		Owner:    user.Username,
 		Balance:  util.RandomMoney(),
 		Currency: util.RandomCurrency(),
 	}
@@ -28,14 +28,16 @@ func getSingleAccount(accID int64) (Account, error) {
 }
 
 func createAndGetAccount() (Account, error) {
-	arg := randomParams()
+	user, _ := createAndGetUser()
+	arg := randomAccountParams(user)
 	res, _ := createRandomAccount(arg)
 	accID, _ := res.LastInsertId()
 	return getSingleAccount(accID)
 }
 
 func TestCreateAccount(t *testing.T) {
-	arg := randomParams()
+	user, _ := createAndGetUser()
+	arg := randomAccountParams(user)
 
 	res, err := createRandomAccount(arg)
 	require.NoError(t, err)
@@ -43,7 +45,8 @@ func TestCreateAccount(t *testing.T) {
 }
 
 func TestGetAccount(t *testing.T) {
-	arg := randomParams()
+	user, _ := createAndGetUser()
+	arg := randomAccountParams(user)
 	res, _ := createRandomAccount(arg)
 	accID, _ := res.LastInsertId()
 	acc, err := getSingleAccount(accID)
@@ -56,7 +59,8 @@ func TestGetAccount(t *testing.T) {
 }
 
 func TestUpdateAccount(t *testing.T) {
-	arg := randomParams()
+	user, _ := createAndGetUser()
+	arg := randomAccountParams(user)
 	res, _ := createRandomAccount(arg)
 	accID, _ := res.LastInsertId()
 
@@ -75,7 +79,8 @@ func TestUpdateAccount(t *testing.T) {
 }
 
 func TestDeleteAccount(t *testing.T) {
-	arg := randomParams()
+	user, _ := createAndGetUser()
+	arg := randomAccountParams(user)
 	res, _ := createRandomAccount(arg)
 	accID, _ := res.LastInsertId()
 
@@ -89,7 +94,8 @@ func TestDeleteAccount(t *testing.T) {
 
 func TestListAccounts(t *testing.T) {
 	for i := 0; i < 10; i++ {
-		arg := randomParams()
+		user, _ := createAndGetUser()
+		arg := randomAccountParams(user)
 		_, _ = createRandomAccount(arg)
 	}
 

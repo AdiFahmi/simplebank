@@ -27,6 +27,8 @@ func NewServer(store db.Store) *Server {
 
 	router.POST("/transfers", server.createTransfer)
 
+	router.POST("/users", server.createUser)
+
 	server.router = router
 	return server
 }
@@ -44,5 +46,11 @@ func (server *Server) ping(ctx *gin.Context) {
 func errorResponse(err error) gin.H {
 	return gin.H{
 		"error": err.Error(),
+	}
+}
+
+func errorStringResponse(err string) gin.H {
+	return gin.H{
+		"error": err,
 	}
 }

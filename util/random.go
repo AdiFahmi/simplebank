@@ -6,6 +6,7 @@ import (
 )
 
 const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+const lowerAlphabet = "abcdefghijklmnopqrstuvwxyz"
 
 func init() {
 	rand.Seed(time.Now().UnixNano())
@@ -17,8 +18,11 @@ func RandomInteger(min, max int64) int64 {
 }
 
 // RandomString returns a random string of length n
-func RandomString(n int) string {
+func RandomString(n int, isLower bool) string {
 	var letterRunes = []rune(alphabet)
+	if isLower {
+		letterRunes = []rune(lowerAlphabet)
+	}
 	b := make([]rune, n)
 	for i := range b {
 		b[i] = letterRunes[rand.Intn(len(letterRunes))]
@@ -27,7 +31,7 @@ func RandomString(n int) string {
 }
 
 func RandomOwner() string {
-	return RandomString(6)
+	return RandomString(6, false)
 }
 
 func RandomMoney() int64 {
@@ -37,8 +41,15 @@ func RandomMoney() int64 {
 func RandomCurrency() string {
 	mapCurr := supportedCurrency
 	currencies := make([]string, len(mapCurr))
+	i := 0
 	for k := range mapCurr {
-		currencies = append(currencies, k)
+		currencies[i] = k
+		i++
 	}
-	return currencies[rand.Intn(len(currencies))]
+	rCur := currencies[rand.Intn(len(currencies))]
+	return rCur
+}
+
+func RandomEmail() string {
+	return RandomString(6, true) + "@" + RandomString(6, true) + ".com"
 }

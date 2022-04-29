@@ -2,10 +2,13 @@ package api
 
 import (
 	"database/sql"
+	"log"
 	"net/http"
 
+	"github.com/VividCortex/mysqlerr"
 	db "github.com/adifahmi/simplebank/db/sqlc"
 	"github.com/gin-gonic/gin"
+	"github.com/go-sql-driver/mysql"
 )
 
 type createAccountRequest struct {
@@ -28,6 +31,16 @@ func (server *Server) createAccount(ctx *gin.Context) {
 
 	res, err := server.store.CreateAccount(ctx, arg)
 	if err != nil {
+		if sqlErr, ok := err.(*mysql.MySQLError); ok {
+			log.Printf("Err %s with number %d", err.Error(), sqlErr.Number)
+			if sqlErr.Number == mysqlerr.ER_NO_REFERENCED_ROW_2 {
+				ctx.JSON(http.StatusBadRequest, errorStringResponse("Owner doesn't exist"))
+				return
+			} else if sqlErr.Number == mysqlerr.ER_DUP_ENTRY {
+				ctx.JSON(http.StatusBadRequest, errorStringResponse("Account with that currency already exists"))
+				return
+			}
+		}
 		ctx.JSON(http.StatusInternalServerError, errorResponse(err))
 		return
 	}
