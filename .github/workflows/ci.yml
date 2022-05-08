@@ -16,7 +16,7 @@ jobs:
         image: percona:5.7
         ports:
           - "3390:3306"
-        environment:
+        env:
           MYSQL_DATABASE: app
           MYSQL_USER: app
           MYSQL_PASSWORD: app
