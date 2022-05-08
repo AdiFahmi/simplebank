@@ -8,7 +8,7 @@ services:
     environment:
       MYSQL_DATABASE: app
       MYSQL_USER: app
-      MYSQL_PASSWORD: root
+      MYSQL_PASSWORD: secret
       MYSQL_ROOT_PASSWORD: root
       TZ: Asia/Jakarta
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
