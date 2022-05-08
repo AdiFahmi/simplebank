@@ -22,7 +22,7 @@ jobs:
           MYSQL_PASSWORD: app
           MYSQL_ROOT_PASSWORD: app
           TZ: Asia/Jakarta
-        command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        options: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
 
     steps:
 
