@@ -12,21 +12,20 @@ services:
       MYSQL_ROOT_PASSWORD: root
       TZ: Asia/Jakarta
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
-  # api:
-  #   build:
-  #     context: .
-  #     dockerfile: Dockerfile
-  #   ports:
-  #     - "8080:8080"
-  #   environment:
-  #     - DB_SOURCE=postgresql://root:secret@postgres:5432/simple_bank?sslmode=disable
-  #   depends_on:
-  #     - mysql
-    # entrypoint:
-    #   [
-    #     "/app/wait-for.sh",
-    #     "postgres:5432",
-    #     "--",
-    #     "/app/start.sh"
-    #   ]
-    # command: [ "/app/main" ]
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8090:8090"
+    environment:
+      - DB_SOURCE=mysql://app:secret@tcp(mysql:3306)/app?timeout=2s&parseTime=true
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=app
+      - DB_PASS=secret
+      - DB_NAME=app
+    depends_on:
+      - mysql
+    entrypoint: ["/app/wait-for.sh", "mysql:3306", "--timeout=60", "--", "/app/start.sh"]
+    command: ["/app/main"]
