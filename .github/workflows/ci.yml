@@ -24,18 +24,16 @@ jobs:
     - name: Setup MySQL
       uses: mirromutth/mysql-action@v1.1
       with:
-        host port: 3390
-        container port: 3390
         character set server: 'utf8mb4'
         collation server: 'utf8mb4_unicode_ci'
         mysql version: '5.7'
         mysql database: 'some_test'
-        mysql root password: 'app'
+        mysql root password: 'admin123'
         mysql user: 'app'
-        mysql password: 'app'
+        mysql password: 'secret123'
 
     - name: Check mysqlDB
-      run: mysqlshow -h 127.0.0.1 -P 3390 -u app -papp
+      run: mysqlshow -h 127.0.0.1 -P 3306 -u app -psecret123
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
