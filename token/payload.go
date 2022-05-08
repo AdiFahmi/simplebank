@@ -16,11 +16,12 @@ var (
 type Payload struct {
 	ID        uuid.UUID `json:"id"`
 	Username  string    `json:"username"`
+	UserID    int64     `json:"user_id"`
 	IssuedAt  time.Time `json:"issued_at"`
 	ExpiresAt time.Time `json:"expires_at"`
 }
 
-func NewPayload(username string, duration time.Duration) (*Payload, error) {
+func NewPayload(username string, userID int64, duration time.Duration) (*Payload, error) {
 	tokenID, err := uuid.NewUUID()
 	if err != nil {
 		return nil, err
@@ -29,6 +30,7 @@ func NewPayload(username string, duration time.Duration) (*Payload, error) {
 	return &Payload{
 		ID:        tokenID,
 		Username:  username,
+		UserID:    userID,
 		IssuedAt:  time.Now(),
 		ExpiresAt: time.Now().Add(duration),
 	}, nil

@@ -18,6 +18,7 @@ FOR UPDATE;
 
 -- name: ListAccounts :many
 SELECT * FROM accounts
+WHERE owner = ?
 ORDER BY id
 LIMIT ?
 OFFSET ?;

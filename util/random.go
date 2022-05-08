@@ -39,7 +39,7 @@ func RandomMoney() int64 {
 }
 
 func RandomCurrency() string {
-	mapCurr := supportedCurrency
+	mapCurr := supportedCurrencyMap
 	currencies := make([]string, len(mapCurr))
 	i := 0
 	for k := range mapCurr {

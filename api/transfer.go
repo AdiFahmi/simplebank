@@ -6,14 +6,14 @@ import (
 	"net/http"
 
 	db "github.com/adifahmi/simplebank/db/sqlc"
+	"github.com/adifahmi/simplebank/token"
 	"github.com/gin-gonic/gin"
 )
 
 type transferRequest struct {
-	FromAccountID int64  `json:"from_account_id" binding:"required,min=1"`
-	ToAccountID   int64  `json:"to_account_id" binding:"required,min=1"`
-	Ammount       int64  `json:"ammount" binding:"required,gt=0"`
-	Currency      string `json:"currency" binding:"required,currency"`
+	ToAccountID int64  `json:"to_account_id" binding:"required,min=1"`
+	Ammount     int64  `json:"ammount" binding:"required,gt=0"`
+	Currency    string `json:"currency" binding:"required,currency"`
 }
 
 func (server *Server) createTransfer(ctx *gin.Context) {
@@ -23,8 +23,10 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 		return
 	}
 
+	authPayload := ctx.MustGet(authorizationPayloadKey).(*token.Payload)
+
 	// check if from account exists
-	_, valid := server.validAccount(ctx, req.FromAccountID, req.Currency)
+	_, valid := server.validAccount(ctx, authPayload.UserID, req.Currency)
 	if !valid {
 		return
 	}
@@ -36,7 +38,7 @@ func (server *Server) createTransfer(ctx *gin.Context) {
 	}
 
 	arg := db.CreateTransferParams{
-		FromAccountID: req.FromAccountID,
+		FromAccountID: authPayload.UserID,
 		ToAccountID:   req.ToAccountID,
 		Ammount:       req.Ammount,
 	}
@@ -54,6 +56,7 @@ func (server *Server) validAccount(ctx *gin.Context, accountID int64, currency s
 	account, err := server.store.GetAccount(ctx, accountID)
 	if err != nil {
 		if err == sql.ErrNoRows {
+			err := fmt.Errorf("account %d not found", accountID)
 			ctx.JSON(http.StatusNotFound, errorResponse(err))
 			return account, false
 		}

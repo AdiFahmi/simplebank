@@ -121,6 +121,7 @@ func (server *Server) loginuser(ctx *gin.Context) {
 
 	accessToken, _, err := server.tokenMaker.CreateToken(
 		user.Username,
+		user.ID,
 		server.config.AccessTokenDuration,
 	)
 	if err != nil {
