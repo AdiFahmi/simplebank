@@ -34,6 +34,9 @@ jobs:
         mysql user: 'app'
         mysql password: 'app'
 
+    - name: Check mysqlDB
+      run: mysqlshow -h 127.0.0.1 -P 3390 -u app -papp
+
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
 
