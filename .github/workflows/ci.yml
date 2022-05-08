@@ -18,23 +18,11 @@ jobs:
       with:
         go-version: 1.18
 
-    - name: Shutdown Ubuntu MySQL (SUDO)
-      run: sudo service mysql stop
-
-    - name: Setup Mysql
-      uses: mirromutth/mysql-action@v1.1
-      with:
-        host port: 3390
-        container port: 3390
-        character set server: 'utf8mb4'
-        collation server: 'utf8mb4_unicode_ci'
-        mysql version: '5.7'
-        mysql database: 'app'
-        mysql user: 'app'
-        mysql password: 'secret'
-
-    - name: Check DB
-      run: mysqlshow -h 127.0.0.1 -P 3390 -u app -psecret
+    - name: Setup DB
+      run: |
+        sudo /etc/init.d/mysql start
+        mysql -e 'CREATE DATABASE app;' -uroot -proot
+        mysql -e 'SHOW DATABASES;' -uroot -proot
 
     - name: Check out code into the Go module directory
       uses: actions/checkout@v3
