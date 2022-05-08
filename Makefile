@@ -1,9 +1,6 @@
 migrateup:
 	migrate -path db/migration -database "mysql://root:root@tcp(127.0.0.1:3390)/app" -verbose up
 
-migrateupga:
-	migrate -path db/migration -database "mysql://root:root@tcp(127.0.0.1:3306)/app" -verbose up
-
 migratedown:
 	migrate -path db/migration -database "mysql://root:root@tcp(127.0.0.1:3390)/app" -verbose down
 
