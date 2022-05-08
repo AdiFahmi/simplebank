@@ -10,9 +10,10 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
+    env:
+      IS_GA: true
 
     steps:
-
     - name: Set up Go
       uses: actions/setup-go@v3
       with:
@@ -34,7 +35,7 @@ jobs:
         which migrate
 
     - name: Run migrations
-      run: make migrateup
+      run: make migrateupga
 
     - name: Test
       run: make test
