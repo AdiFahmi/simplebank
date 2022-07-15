@@ -15,13 +15,14 @@
 *.out
 
 # Dependency directories (remove the comment below to include it)
-# vendor/
+vendor/
 
 # Go workspace file
 go.work
 
-# VSCode local config
+# IDE local config
 .vscode/*
+.idea/*
 
 # Go binary
 gin-bin
